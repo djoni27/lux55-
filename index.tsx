@@ -1,30 +1,27 @@
-
 import { GoogleGenAI } from "@google/genai";
+import { createClient } from "@supabase/supabase-js";
 
-// @ts-ignore
 const { createApp } = (window as any).Vue;
+
+const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_ANON_KEY
+);
 
 const TRANSLATIONS: any = {
     ar: {
         loading: "جاري تجهيز متجرك...",
         adminTitle: "استوديو التحكم البلاتيني",
         saveBtn: "حفظ ونشر",
-        basicSettings: "الهوية",
-        designSettings: "التصميم",
-        manageCats: "الفئات",
-        manageProds: "المخزون",
-        basicInfo: "بيانات المتجر",
-        languageSelect: "اللغة",
+        languageSelect: "لغة المتجر",
         storeNameLabel: "اسم المتجر",
         phoneLabel: "رقم الواتساب",
         heroTitleLabel: "عنوان الهيرو",
         logoLabel: "الشعار",
         uploadLogo: "رفع شعار",
-        heroStyle: "تنسيق الهيرو",
         fontSize: "حجم الخط",
         bgLabel: "الخلفية",
         uploadBg: "رفع خلفية",
-        modesLabel: "الأنماط",
         all: "الكل",
         currency: "د.ج",
         cartTitle: "الحقيبة",
@@ -39,32 +36,90 @@ const TRANSLATIONS: any = {
         prodNamePlaceholder: "اسم المنتج",
         pricePlaceholder: "السعر",
         catPlaceholder: "الفئة",
+        descPlaceholder: "الوصف",
         uploadProductImg: "صورة المنتج",
         addToList: "نشر المنتج",
         saveEdit: "حفظ التعديلات",
         searchPlaceholder: "ابحث عن منتج...",
+        aiTitle: "المساعد الذكي",
         aiThinking: "المساعد يفكر بعمق...",
+        aiPlaceholder: "اسأل المساعد عن المنتجات...",
         aiDefault: "مرحباً! أنا مساعدك الذكي، كيف يمكنني مساعدتك في اختيار المنتج المثالي؟"
-    }
-};
-
-const DEFAULT_DATA = {
-    settings: {
-        storeName: "Platinum Store",
-        heroTitle: "Experience Excellence in Every Detail",
-        phone: "213",
-        bgColor: "#0f172a",
-        bgImage: "",
-        logo: "",
-        cardMode: "3d",
-        heroColor: "#ffffff",
-        heroFont: "'Tajawal', sans-serif",
-        heroSize: "3"
     },
-    products: [
-        { name: "Platinum Timepiece Pro", price: 15500, category: "Luxury", description: "Precision and style combined into one masterpiece.", image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80" },
-        { name: "Urban Tech Sneakers", price: 12000, category: "Fashion", description: "Modern comfort for the urban explorer.", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&q=80" }
-    ]
+    en: {
+        loading: "Loading your store...",
+        adminTitle: "Pro Control Studio",
+        saveBtn: "Save & Publish",
+        languageSelect: "Store Language",
+        storeNameLabel: "Store Name",
+        phoneLabel: "WhatsApp Number",
+        heroTitleLabel: "Hero Title",
+        logoLabel: "Logo",
+        uploadLogo: "Upload Logo",
+        fontSize: "Font Size",
+        bgLabel: "Background",
+        uploadBg: "Upload Background",
+        all: "All",
+        currency: "DA",
+        cartTitle: "Cart",
+        emptyCart: "Cart is empty",
+        total: "Total",
+        checkoutBtn: "Order via WhatsApp",
+        addToCart: "Add to Cart",
+        shareProduct: "Share",
+        prodDescDefault: "Premium quality product.",
+        addProduct: "Add Product",
+        editProduct: "Edit Product",
+        prodNamePlaceholder: "Product Name",
+        pricePlaceholder: "Price",
+        catPlaceholder: "Category",
+        descPlaceholder: "Description",
+        uploadProductImg: "Product Image",
+        addToList: "Publish Product",
+        saveEdit: "Save Changes",
+        searchPlaceholder: "Search for a product...",
+        aiTitle: "AI Assistant",
+        aiThinking: "AI is thinking...",
+        aiPlaceholder: "Ask the assistant about products...",
+        aiDefault: "Hello! I'm your AI assistant. How can I help you choose the perfect product?"
+    },
+    fr: {
+        loading: "Chargement de votre magasin...",
+        adminTitle: "Studio de Contrôle Pro",
+        saveBtn: "Enregistrer et Publier",
+        languageSelect: "Langue du Magasin",
+        storeNameLabel: "Nom du Magasin",
+        phoneLabel: "Numéro WhatsApp",
+        heroTitleLabel: "Titre Principal",
+        logoLabel: "Logo",
+        uploadLogo: "Télécharger le Logo",
+        fontSize: "Taille de Police",
+        bgLabel: "Arrière-plan",
+        uploadBg: "Télécharger l'Arrière-plan",
+        all: "Tout",
+        currency: "DA",
+        cartTitle: "Panier",
+        emptyCart: "Le panier est vide",
+        total: "Total",
+        checkoutBtn: "Commander via WhatsApp",
+        addToCart: "Ajouter au Panier",
+        shareProduct: "Partager",
+        prodDescDefault: "Produit de qualité premium.",
+        addProduct: "Ajouter un Produit",
+        editProduct: "Modifier le Produit",
+        prodNamePlaceholder: "Nom du Produit",
+        pricePlaceholder: "Prix",
+        catPlaceholder: "Catégorie",
+        descPlaceholder: "Description",
+        uploadProductImg: "Image du Produit",
+        addToList: "Publier le Produit",
+        saveEdit: "Enregistrer les Modifications",
+        searchPlaceholder: "Rechercher un produit...",
+        aiTitle: "Assistant IA",
+        aiThinking: "L'IA réfléchit...",
+        aiPlaceholder: "Demandez à l'assistant à propos des produits...",
+        aiDefault: "Bonjour! Je suis votre assistant IA. Comment puis-je vous aider à choisir le produit parfait?"
+    }
 };
 
 const app = createApp({
@@ -81,11 +136,22 @@ const app = createApp({
             searchQuery: '',
             selectedProduct: null,
             activeTab: 'general',
-            data: JSON.parse(JSON.stringify(DEFAULT_DATA)),
+            settings: {
+                storeName: "Platinum Store",
+                heroTitle: "Premium Quality & Modern Elegance",
+                phone: "213",
+                bgColor: "#0f172a",
+                bgImage: "",
+                logo: "",
+                cardMode: "3d",
+                heroColor: "#ffffff",
+                heroFont: "'Tajawal', sans-serif",
+                heroSize: "3"
+            },
+            products: [],
             productForm: { name: '', price: '', category: '', image: '', description: '' },
             isEditing: false,
             editingIndex: -1,
-            // AI Chat Data
             aiInput: '',
             aiLoading: false,
             aiMessages: [],
@@ -99,15 +165,20 @@ const app = createApp({
                 { id: '3d', name: '3D Pop', icon: 'fa-solid fa-cube', color: '#3b82f6' },
                 { id: 'neon', name: 'Neon', icon: 'fa-solid fa-bolt', color: '#a855f7' },
                 { id: 'glass', name: 'Glass', icon: 'fa-solid fa-wine-glass', color: '#0ea5e9' },
-                { id: 'luxury', name: 'Luxury', icon: 'fa-solid fa-crown', color: '#d4af37' }
+                { id: 'luxury', name: 'Luxury', icon: 'fa-solid fa-crown', color: '#d4af37' },
+                { id: 'comic', name: 'Comic', icon: 'fa-solid fa-comment-dots', color: '#000' },
+                { id: 'gradient', name: 'Gradient', icon: 'fa-solid fa-palette', color: '#ff00cc' },
+                { id: 'clay', name: 'Clay', icon: 'fa-solid fa-cloud', color: '#94a3b8' },
+                { id: 'cyber', name: 'Cyber', icon: 'fa-solid fa-robot', color: '#fcee0a' },
+                { id: 'nature', name: 'Nature', icon: 'fa-solid fa-leaf', color: '#16a34a' }
             ]
         }
     },
     computed: {
         t() { return TRANSLATIONS[this.currentLang] || TRANSLATIONS.ar; },
-        categories() { return [...new Set(this.data.products.map((p: any) => p.category))]; },
+        categories() { return [...new Set(this.products.map((p: any) => p.category))]; },
         filteredProducts() {
-            let result = this.data.products;
+            let result = this.products;
             if (this.filter !== 'all') result = result.filter((p: any) => p.category === this.filter);
             if (this.searchQuery) {
                 const q = this.searchQuery.toLowerCase();
@@ -117,66 +188,100 @@ const app = createApp({
         },
         cartTotal() { return this.cart.reduce((s: number, i: any) => s + Number(i.price), 0); },
         bodyStyle() {
-            let style: any = { backgroundColor: this.data.settings.bgColor };
-            if (this.data.settings.bgImage) {
-                style.backgroundImage = `url('${this.data.settings.bgImage}')`;
+            let style: any = { backgroundColor: this.settings.bgColor };
+            if (this.settings.bgImage) {
+                style.backgroundImage = `url('${this.settings.bgImage}')`;
             }
             return style;
         },
         heroTextStyle() {
             return {
-                color: this.data.settings.heroColor,
-                fontFamily: this.data.settings.heroFont,
-                fontSize: this.data.settings.heroSize + 'rem',
+                color: this.settings.heroColor,
+                fontFamily: this.settings.heroFont,
+                fontSize: this.settings.heroSize + 'rem',
                 fontWeight: '900'
             }
         },
         textColor() {
-            const mode = this.data.settings.cardMode;
-            if (['neon', 'glass', 'luxury'].includes(mode) || this.data.settings.bgImage) return 'white';
+            const mode = this.settings.cardMode;
+            if (['neon', 'glass', 'luxury'].includes(mode) || this.settings.bgImage) return 'white';
             return '#0f172a';
         },
         textColorClass() {
-            return ['neon', 'luxury', 'glass'].includes(this.data.settings.cardMode) ? 'text-inherit' : 'text-slate-900';
+            return ['neon', 'luxury', 'glass'].includes(this.settings.cardMode) ? 'text-inherit' : 'text-slate-900';
         }
     },
     methods: {
+        async loadData() {
+            try {
+                const { data: settingsData } = await supabase
+                    .from('store_settings')
+                    .select('*')
+                    .maybeSingle();
+
+                if (settingsData) {
+                    this.settings = {
+                        storeName: settingsData.store_name,
+                        heroTitle: settingsData.hero_title,
+                        phone: settingsData.phone,
+                        bgColor: settingsData.bg_color,
+                        bgImage: settingsData.bg_image,
+                        logo: settingsData.logo,
+                        cardMode: settingsData.card_mode,
+                        heroColor: settingsData.hero_color,
+                        heroFont: settingsData.hero_font,
+                        heroSize: settingsData.hero_size
+                    };
+                }
+
+                const { data: productsData } = await supabase
+                    .from('products')
+                    .select('*')
+                    .order('sort_order', { ascending: false });
+
+                if (productsData) {
+                    this.products = productsData;
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        },
         async handleUpload(event: any, type: string) {
             const file = event.target.files[0];
             if (!file) return;
             try {
-                // @ts-ignore
                 const options = { maxSizeMB: 0.1, maxWidthOrHeight: 800 };
                 const compressed = await (window as any).imageCompression(file, options);
                 const reader = new FileReader();
                 reader.readAsDataURL(compressed);
                 reader.onload = () => {
-                    if (type === 'logo') this.data.settings.logo = reader.result;
-                    else if (type === 'bg') this.data.settings.bgImage = reader.result;
-                    else if (type === 'product') this.productForm.image = reader.result;
+                    if (type === 'logo') this.settings.logo = reader.result as string;
+                    else if (type === 'bg') this.settings.bgImage = reader.result as string;
+                    else if (type === 'product') this.productForm.image = reader.result as string;
                 };
             } catch (e) { console.error(e); }
         },
         async askAI() {
             if (!this.aiInput.trim() || this.aiLoading) return;
-            
+
             const userQuery = this.aiInput;
             this.aiInput = '';
             this.aiMessages.push({ role: 'user', content: userQuery });
-            
+
             const thinkingMsgIndex = this.aiMessages.length;
             this.aiMessages.push({ role: 'model', content: '', thinking: true });
             this.aiLoading = true;
 
             try {
-                const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-                const prompt = `أنت مساعد ذكي لمتجر إلكتروني يسمى ${this.data.settings.storeName}. 
-                إليك قائمة المنتجات المتاحة: ${JSON.stringify(this.data.products)}. 
-                أجب على استفسار العميل التالي بذكاء وساعده في اختيار ما يناسبه: ${userQuery}. 
+                const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY;
+                const ai = new GoogleGenAI({ apiKey });
+                const prompt = `أنت مساعد ذكي لمتجر إلكتروني يسمى ${this.settings.storeName}.
+                إليك قائمة المنتجات المتاحة: ${JSON.stringify(this.products)}.
+                أجب على استفسار العميل التالي بذكاء وساعده في اختيار ما يناسبه: ${userQuery}.
                 تأكد من ذكر الأسعار والمميزات المذكورة في الوصف.`;
 
                 const result = await ai.models.generateContent({
-                    model: 'gemini-3-pro-preview',
+                    model: 'gemini-2.0-flash-thinking-exp-1219',
                     contents: prompt,
                     config: {
                         thinkingConfig: { thinkingBudget: 32768 }
@@ -197,38 +302,114 @@ const app = createApp({
                 });
             }
         },
-        saveToCloud() {
+        async saveToCloud() {
             this.saving = true;
-            localStorage.setItem('platinumStore_Data_Android', JSON.stringify(this.data));
-            setTimeout(() => {
-                this.saving = false;
+            try {
+                const { data: existingSettings } = await supabase
+                    .from('store_settings')
+                    .select('id')
+                    .maybeSingle();
+
+                const settingsPayload = {
+                    store_name: this.settings.storeName,
+                    hero_title: this.settings.heroTitle,
+                    phone: this.settings.phone,
+                    bg_color: this.settings.bgColor,
+                    bg_image: this.settings.bgImage,
+                    logo: this.settings.logo,
+                    card_mode: this.settings.cardMode,
+                    hero_color: this.settings.heroColor,
+                    hero_font: this.settings.heroFont,
+                    hero_size: this.settings.heroSize
+                };
+
+                if (existingSettings) {
+                    await supabase
+                        .from('store_settings')
+                        .update(settingsPayload)
+                        .eq('id', existingSettings.id);
+                } else {
+                    await supabase
+                        .from('store_settings')
+                        .insert([settingsPayload]);
+                }
+
                 (window as any).Swal.fire({ icon: 'success', title: 'تم الحفظ!', timer: 1500, showConfirmButton: false });
-            }, 800);
-        },
-        saveProduct() {
-            if (!this.productForm.name || !this.productForm.image) return;
-            if (this.isEditing) {
-                this.data.products[this.editingIndex] = { ...this.productForm };
-            } else {
-                this.data.products.unshift({ ...this.productForm });
+            } catch (error) {
+                console.error('Save error:', error);
+                (window as any).Swal.fire({ icon: 'error', title: 'خطأ في الحفظ', timer: 1500 });
+            } finally {
+                this.saving = false;
             }
-            this.cancelEdit();
+        },
+        async saveProduct() {
+            if (!this.productForm.name || !this.productForm.image) return;
+
+            try {
+                const productPayload = {
+                    name: this.productForm.name,
+                    price: Number(this.productForm.price),
+                    category: this.productForm.category,
+                    description: this.productForm.description,
+                    image: this.productForm.image,
+                    sort_order: Date.now()
+                };
+
+                if (this.isEditing && this.products[this.editingIndex]) {
+                    const productId = this.products[this.editingIndex].id;
+                    await supabase
+                        .from('products')
+                        .update(productPayload)
+                        .eq('id', productId);
+
+                    this.products[this.editingIndex] = { ...productPayload, id: productId };
+                } else {
+                    const { data } = await supabase
+                        .from('products')
+                        .insert([productPayload])
+                        .select()
+                        .single();
+
+                    if (data) {
+                        this.products.unshift(data);
+                    }
+                }
+
+                this.cancelEdit();
+                (window as any).Swal.fire({ icon: 'success', title: 'تم الحفظ!', timer: 1000, showConfirmButton: false });
+            } catch (error) {
+                console.error('Product save error:', error);
+                (window as any).Swal.fire({ icon: 'error', title: 'خطأ في الحفظ', timer: 1500 });
+            }
         },
         editProduct(i: number) {
-            this.productForm = { ...this.data.products[i] };
+            this.productForm = { ...this.products[i] };
             this.isEditing = true;
             this.editingIndex = i;
         },
-        deleteProduct(i: number) {
-            (window as any).Swal.fire({
-                title: 'هل أنت متأكد؟',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'نعم، احذف',
-                cancelButtonText: 'إلغاء'
-            }).then((r: any) => {
-                if (r.isConfirmed) this.data.products.splice(i, 1);
-            });
+        async deleteProduct(productId: string) {
+            try {
+                const result = await (window as any).Swal.fire({
+                    title: 'هل أنت متأكد؟',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'نعم، احذف',
+                    cancelButtonText: 'إلغاء'
+                });
+
+                if (result.isConfirmed) {
+                    await supabase
+                        .from('products')
+                        .delete()
+                        .eq('id', productId);
+
+                    this.products = this.products.filter((p: any) => p.id !== productId);
+                    (window as any).Swal.fire({ icon: 'success', title: 'تم الحذف!', timer: 1000, showConfirmButton: false });
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                (window as any).Swal.fire({ icon: 'error', title: 'خطأ في الحذف', timer: 1500 });
+            }
         },
         cancelEdit() {
             this.isEditing = false;
@@ -244,10 +425,10 @@ const app = createApp({
             });
         },
         checkout() {
-            let msg = `🛍️ طلب جديد من متجر ${this.data.settings.storeName}:\n\n`;
+            let msg = `🛍️ طلب جديد من متجر ${this.settings.storeName}:\n\n`;
             this.cart.forEach((p: any) => msg += `• ${p.name} (${p.price} ${this.t.currency})\n`);
             msg += `\n💰 الإجمالي: ${this.cartTotal} ${this.t.currency}`;
-            window.open(`https://wa.me/${this.data.settings.phone}?text=${encodeURIComponent(msg)}`, '_blank');
+            window.open(`https://wa.me/${this.settings.phone}?text=${encodeURIComponent(msg)}`, '_blank');
         },
         nativeShare(p: any) {
             if (navigator.share) {
@@ -255,11 +436,10 @@ const app = createApp({
             }
         }
     },
-    mounted() {
-        const saved = localStorage.getItem('platinumStore_Data_Android');
-        if (saved) this.data = JSON.parse(saved);
+    async mounted() {
+        await this.loadData();
         this.aiMessages.push({ role: 'model', content: this.t.aiDefault });
-        setTimeout(() => this.loading = false, 1500);
+        setTimeout(() => this.loading = false, 1000);
     }
 });
 
